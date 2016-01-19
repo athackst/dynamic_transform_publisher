@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="dynamic_transform_publisher" type="dynamic_transform_publisher.py" name="dynamic_tf_pub" output="screen" >
+    <rosparam file="$(find dynamic_transform_publisher)/launch/test.yaml" command="load" />
+  </node>
+</launch>

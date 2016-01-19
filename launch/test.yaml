@@ -1,0 +1,12 @@
+child_frame: test
+parent_frame: world
+transform:
+  rotation:
+    w: 1.0
+    x: 0.5
+    y: 0.6
+    z: 0.7
+  translation:
+    x: 1.0
+    y: 2.0
+    z: 3.0
