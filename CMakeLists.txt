@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(dynamic_transform_publisher)
 
-find_package(catkin REQUIRED COMPONENTS roscpp tf2_ros dynamic_reconfigure)
+find_package(catkin REQUIRED COMPONENTS roscpp tf tf2_ros dynamic_reconfigure)
 
 include(FindPkgConfig)
 
@@ -10,7 +10,7 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS roscpp tf2_ros dynamic_reconfigure
+  CATKIN_DEPENDS roscpp tf tf2_ros dynamic_reconfigure
 )
 
 include_directories(

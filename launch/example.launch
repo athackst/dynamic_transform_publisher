@@ -1,0 +1,15 @@
+<launch>
+  <node pkg="dynamic_transform_publisher" type="dynamic_transform_publisher" name="dynamic_tf_pub" output="screen" >
+    <rosparam>
+        frame_id: world
+        child_frame_id: new_frame
+        x: 0.1
+        y: 0.2
+        z: 0.3
+        roll: 0.4
+        pitch: 0.5
+        yaw: 0.6
+        use_rpy : True
+    </rosparam>
+  </node>
+</launch>

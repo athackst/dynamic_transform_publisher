@@ -51,9 +51,20 @@ public:
         t.child_frame_id = config.child_frame_id;
         t.header.stamp = ros::Time::now();
 
-        if(config.frame_id != "" && config.child_frame_id != "" && config.frame_id != config.child_frame_id)
+        if(config.frame_id == "" || config.child_frame_id == "")
         {
-            tf2_ros::StaticTransformBroadcaster br;
+            ROS_WARN_STREAM("No transforms will be published until frames are set. "
+                             << "\n frame_id: " << config.frame_id
+                             <<"\n child_frame_id: " << config.child_frame_id);
+        }
+        else if(config.frame_id == config.child_frame_id)
+        {
+            ROS_WARN_STREAM("frame_id and child_frame_id cannot be the same. "
+                             << "\n frame_id: " << config.frame_id
+                             <<"\n child_frame_id: " << config.child_frame_id);
+        }
+        else
+        {
             std::vector<geometry_msgs::TransformStamped> transforms;
             transforms.push_back(t);
             br.sendTransform(transforms);
