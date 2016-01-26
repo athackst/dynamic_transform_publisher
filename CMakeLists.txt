@@ -10,25 +10,35 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES dynamic_tf
   CATKIN_DEPENDS roscpp tf tf2_ros dynamic_reconfigure
 )
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
+link_directories(${catkin_LIBRARY_DIRS})
+
+add_library(dynamic_tf src/dynamic_tf.cpp)
+target_link_libraries(dynamic_tf ${catkin_LIBRARIES})
+add_dependencies(dynamic_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 add_executable(dynamic_transform_publisher src/dynamic_transform_publisher.cpp)
+target_link_libraries(dynamic_transform_publisher dynamic_tf)
 
-target_link_libraries(dynamic_transform_publisher
-  ${catkin_LIBRARIES}
-)
-add_dependencies(dynamic_transform_publisher ${PROJECT_NAME}_gencfg)
-add_dependencies(dynamic_transform_publisher ${catkin_EXPORTED_TARGETS})
-
-install(TARGETS dynamic_transform_publisher
+install(TARGETS dynamic_transform_publisher dynamic_tf
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+FILES_MATCHING PATTERN "*.h"
+PATTERN ".svn" EXCLUDE
 )
 
 install(DIRECTORY launch

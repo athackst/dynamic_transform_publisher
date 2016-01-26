@@ -1,94 +1,48 @@
 #include <iostream>
 #include <fstream>
 #include <ros/ros.h>
-#include <tf2_ros/static_transform_broadcaster.h>
-#include <tf/tf.h>
-#include <dynamic_reconfigure/server.h>
-#include <dynamic_transform_publisher/TFConfig.h>
-
-class DynamicTransformPublisher
-{
-public:
-    DynamicTransformPublisher() {}
-    virtual ~DynamicTransformPublisher() {}
-
-    void configureCB(dynamic_transform_publisher::TFConfig &config, uint32_t level)
-    {
-        geometry_msgs::TransformStamped t;
-        t.transform.translation.x = config.x;
-        t.transform.translation.y = config.y;
-        t.transform.translation.z = config.z;
-
-        if(config.use_rpy)
-        {
-            config.groups.rpy.state = true;
-            config.groups.quaternion.state = false;
-
-            tf::Quaternion q;
-            q.setRPY(config.roll, config.pitch, config.yaw);
-            //! update quaternion from rpy
-            config.qx = q.getX();
-            config.qy = q.getY();
-            config.qz = q.getZ();
-            config.qw = q.getW();
-
-        }
-        else
-        {
-            config.groups.rpy.state = false;
-            config.groups.quaternion.state = true;
-
-            //! update rpy from quaternion
-            tf::Quaternion q(config.qx, config.qy, config.qz, config.qw);
-            tf::Matrix3x3(q).getRPY(config.roll, config.pitch, config.yaw);
-        }
-
-        t.transform.rotation.x = config.qx;
-        t.transform.rotation.y = config.qy;
-        t.transform.rotation.z = config.qz;
-        t.transform.rotation.w = config.qw;
-        t.header.frame_id = config.frame_id;
-        t.child_frame_id = config.child_frame_id;
-        t.header.stamp = ros::Time::now();
-
-        if(config.frame_id == "" || config.child_frame_id == "")
-        {
-            ROS_WARN_STREAM("No transforms will be published until frames are set. "
-                             << "\n frame_id: " << config.frame_id
-                             <<"\n child_frame_id: " << config.child_frame_id);
-        }
-        else if(config.frame_id == config.child_frame_id)
-        {
-            ROS_WARN_STREAM("frame_id and child_frame_id cannot be the same. "
-                             << "\n frame_id: " << config.frame_id
-                             <<"\n child_frame_id: " << config.child_frame_id);
-        }
-        else
-        {
-            std::vector<geometry_msgs::TransformStamped> transforms;
-            transforms.push_back(t);
-            br.sendTransform(transforms);
-        }
-    }
-
-private:
-    tf2_ros::StaticTransformBroadcaster br;
-
-};
-
+#include <dynamic_transform_publisher/dynamic_tf.h>
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "dynamic_transform_publisher");
+    ros::init(argc, argv, "dynamic_transform_publisher", ros::init_options::AnonymousName);
     ros::NodeHandle nh("~");
 
-    DynamicTransformPublisher tf_sender;
+    DynamicTransform tf_sender(nh);
 
-    dynamic_reconfigure::Server<dynamic_transform_publisher::TFConfig> server;
-    dynamic_reconfigure::Server<dynamic_transform_publisher::TFConfig>::CallbackType f;
+    if(argc == 11)
+    {
+      if (strcmp(argv[8], argv[9]) == 0)
+        ROS_FATAL("target_frame and source frame are the same (%s, %s) this cannot work", argv[8], argv[9]);
 
-    f = boost::bind(&DynamicTransformPublisher::configureCB, &tf_sender, _1, _2);
-    server.setCallback(f);
+      tf_sender.set(atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4]), atof(argv[5]), atof(argv[6]), atof(argv[7]), argv[8], argv[9]);
+    }
+    else if (argc == 10)
+    {
+      if (strcmp(argv[7], argv[8]) == 0)
+        ROS_FATAL("target_frame and source frame are the same (%s, %s) this cannot work", argv[7], argv[8]);
+
+      tf_sender.set(atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4]), atof(argv[5]), atof(argv[6]), argv[7], argv[8]);
+    }
+    else if(argc==1)
+    {
+        ROS_INFO("using default parameters");
+    }
+    else
+    {
+        printf("A command line utility for manually sending a transform.\n");
+        printf("It will periodicaly republish the given transform. \n");
+        printf("Usage: static_transform_publisher x y z yaw pitch roll frame_id child_frame_id  period(milliseconds) \n");
+        printf("OR \n");
+        printf("Usage: static_transform_publisher x y z qx qy qz qw frame_id child_frame_id  period(milliseconds) \n");
+        printf("OR \n");
+        printf("Usage: static_transform_publisher\n");
+        printf("\nThis transform is the transform of the coordinate frame from frame_id into the coordinate frame \n");
+        printf("of the child_frame_id.  \n");
+        ROS_ERROR("static_transform_publisher exited due to not having the right number of arguments");
+        return -1;
+    }
+
     ros::spin();
 
     return 0;
