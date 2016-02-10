@@ -11,7 +11,7 @@ generate_dynamic_reconfigure_options(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES dynamic_tf
+  LIBRARIES dynamic_tf2
   CATKIN_DEPENDS roscpp tf tf2_ros dynamic_reconfigure
 )
 
@@ -22,14 +22,14 @@ include_directories(
 
 link_directories(${catkin_LIBRARY_DIRS})
 
-add_library(dynamic_tf src/dynamic_tf.cpp)
-target_link_libraries(dynamic_tf ${catkin_LIBRARIES})
-add_dependencies(dynamic_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_library(dynamic_tf2 src/dynamic_tf2.cpp)
+target_link_libraries(dynamic_tf2 ${catkin_LIBRARIES})
+add_dependencies(dynamic_tf2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(dynamic_transform_publisher src/dynamic_transform_publisher.cpp)
-target_link_libraries(dynamic_transform_publisher dynamic_tf)
+target_link_libraries(dynamic_transform_publisher dynamic_tf2)
 
-install(TARGETS dynamic_transform_publisher dynamic_tf
+install(TARGETS dynamic_transform_publisher dynamic_tf2
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

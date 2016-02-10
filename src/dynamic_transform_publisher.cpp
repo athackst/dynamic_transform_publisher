@@ -1,14 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include <ros/ros.h>
-#include <dynamic_transform_publisher/dynamic_tf.h>
+#include <dynamic_transform_publisher/dynamic_tf2.h>
 
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "dynamic_transform_publisher", ros::init_options::AnonymousName);
     ros::NodeHandle nh("~");
 
-    DynamicTransform tf_sender(nh);
+    DynamicTF2 tf_sender(nh);
 
     if(argc == 11)
     {
@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     }
     else if(argc==1)
     {
-        ROS_INFO("using default parameters");
+        ROS_INFO("using parameters");
     }
     else
     {
