@@ -1,4 +1,4 @@
-#include <dynamic_transform_publisher/dynamic_tf2.h>
+#include <dynamic_transform_publisher/dynamic_transform_broadcaster.h>
 
 using namespace tf2_ros;
 

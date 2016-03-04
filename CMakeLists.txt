@@ -22,7 +22,7 @@ include_directories(
 
 link_directories(${catkin_LIBRARY_DIRS})
 
-add_library(dynamic_tf2 src/dynamic_tf2.cpp)
+add_library(dynamic_tf2 src/dynamic_transform_broadcaster.cpp)
 target_link_libraries(dynamic_tf2 ${catkin_LIBRARIES})
 add_dependencies(dynamic_tf2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 

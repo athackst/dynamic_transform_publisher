@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <ros/ros.h>
-#include <dynamic_transform_publisher/dynamic_tf2.h>
+#include <dynamic_transform_publisher/dynamic_transform_broadcaster.h>
 
 int main(int argc, char** argv)
 {
@@ -32,13 +32,15 @@ int main(int argc, char** argv)
     {
         printf("A command line utility for manually sending a transform.\n");
         printf("It will periodicaly republish the given transform. \n");
+        printf("This transform is the transform of the coordinate frame from frame_id into the coordinate frame \n");
+        printf("of the child_frame_id.\n");
+        printf("If no arguments are given, the publisher will use the parameter server. \n\n");
         printf("Usage: dynamic_transform_publisher x y z yaw pitch roll frame_id child_frame_id  period(milliseconds) \n");
         printf("OR \n");
         printf("Usage: dynamic_transform_publisher x y z qx qy qz qw frame_id child_frame_id  period(milliseconds) \n");
         printf("OR \n");
         printf("Usage: dynamic_transform_publisher\n");
-        printf("\nThis transform is the transform of the coordinate frame from frame_id into the coordinate frame \n");
-        printf("of the child_frame_id.  \n");
+
         ROS_ERROR("dynamic_transform_publisher exited due to not having the right number of arguments");
         return -1;
     }
