@@ -10,13 +10,15 @@ public:
     DynamicTF2(ros::NodeHandle nh);
     virtual ~DynamicTF2() {}
 
-    void set(double x, double y, double z, double roll, double pitch, double yaw, std::string frame_id, std::string child_frame_id);
+    void set(double x, double y, double z, double roll, double pitch, double yaw, std::string frame_id, std::string child_frame_id, double period);
 
-    void set(double x, double y, double z, double qx, double qy, double qz, double qw, std::string frame_id, std::string child_frame_id);
+    void set(double x, double y, double z, double qx, double qy, double qz, double qw, std::string frame_id, std::string child_frame_id, double period);
 
     void configureCB(dynamic_transform_publisher::TFConfig &config, uint32_t level);
 
     void update(const ros::TimerEvent &e);
+
+    void start();
 
 private:
     tf2_ros::TransformBroadcaster br;

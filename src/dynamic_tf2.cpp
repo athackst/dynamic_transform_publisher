@@ -3,18 +3,14 @@
 DynamicTF2::DynamicTF2(ros::NodeHandle nh)
 {
     server.reset(new ReconfigureServer(config_mutex, nh));
-    ReconfigureServer::CallbackType f = boost::bind(&DynamicTF2::configureCB, this, _1, _2);
-    server->setCallback(f);
 
-    double update_time = nh.param<double>("update_time", 0.1);
-    ROS_INFO_STREAM("Created update timer at " << update_time << " duration.");
-    update_timer = nh.createTimer(ros::Duration(update_time), &DynamicTF2::update, this, false, false);
-
+    update_timer = nh.createTimer(ros::Duration(0), &DynamicTF2::update, this, false, false);
 }
 
 
-void DynamicTF2::set(double x, double y, double z, double roll, double pitch, double yaw, std::string frame_id, std::string child_frame_id)
+void DynamicTF2::set(double x, double y, double z, double roll, double pitch, double yaw, std::string frame_id, std::string child_frame_id, double period)
 {
+    update_timer.stop();
     dynamic_transform_publisher::TFConfig config;
     config.x = x;
     config.y = y;
@@ -25,12 +21,14 @@ void DynamicTF2::set(double x, double y, double z, double roll, double pitch, do
     config.yaw = yaw;
     config.frame_id = frame_id;
     config.child_frame_id = child_frame_id;
+    config.period = period;
 
     server->updateConfig(config);
 }
 
-void DynamicTF2::set(double x, double y, double z, double qx, double qy, double qz, double qw, std::string frame_id, std::string child_frame_id)
+void DynamicTF2::set(double x, double y, double z, double qx, double qy, double qz, double qw, std::string frame_id, std::string child_frame_id, double period)
 {
+    update_timer.stop();
     dynamic_transform_publisher::TFConfig config;
     config.x = x;
     config.y = y;
@@ -42,6 +40,7 @@ void DynamicTF2::set(double x, double y, double z, double qx, double qy, double 
     config.qw = qw;
     config.frame_id = frame_id;
     config.child_frame_id = child_frame_id;
+    config.period = period;
 
     server->updateConfig(config);
 }
@@ -83,6 +82,8 @@ void DynamicTF2::configureCB(dynamic_transform_publisher::TFConfig &config, uint
     transform.header.frame_id = config.frame_id;
     transform.child_frame_id = config.child_frame_id;
 
+    update_timer.setPeriod(ros::Duration(config.period/1000));
+
     if(config.frame_id == "" || config.child_frame_id == "")
     {
         ROS_WARN_STREAM("No transforms will be published until frames are set. "
@@ -109,4 +110,10 @@ void DynamicTF2::update(const ros::TimerEvent &e)
     boost::recursive_mutex::scoped_lock lock(config_mutex);
     transform.header.stamp = ros::Time::now();
     br.sendTransform(transform);
+}
+
+void DynamicTF2::start()
+{
+    ReconfigureServer::CallbackType f = boost::bind(&DynamicTF2::configureCB, this, _1, _2);
+    server->setCallback(f);
 }
