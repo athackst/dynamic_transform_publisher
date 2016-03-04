@@ -43,7 +43,7 @@ public:
      **/
     void send(const ros::TimerEvent &e = ros::TimerEvent());
 
-private:
+protected:
     tf2_ros::TransformBroadcaster br;
 
     boost::recursive_mutex config_mutex;
