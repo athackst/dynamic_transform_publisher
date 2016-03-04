@@ -4,21 +4,44 @@
 #include <dynamic_reconfigure/server.h>
 #include <dynamic_transform_publisher/TFConfig.h>
 
-class DynamicTF2
+namespace tf2_ros
+{
+
+class DynamicTransformBroadcaster
 {
 public:
-    DynamicTF2(ros::NodeHandle nh);
-    virtual ~DynamicTF2() {}
+    DynamicTransformBroadcaster(ros::NodeHandle nh);
+    virtual ~DynamicTransformBroadcaster() {}
 
-    void set(double x, double y, double z, double roll, double pitch, double yaw, std::string frame_id, std::string child_frame_id, double period);
+    /** @brief Initializes the transform to x, y, z roll, pitch, yaw
+     *  @note  init(..) needs to be called before start()
+     *  @param x The x translation of the tf
+     *  @param y The y translation of the tf
+     *  @param z The z translation of the tf
+     *  @param roll The rotation about x
+     *  @param pitch The rotation about y
+     *  @param yaw The rotation about z
+     *  @param frame_id The parent frame name
+     *  @param child_frame_id The name of the transform to publihs
+     *  @param period The period (in ms) to send the TransformData
+     **/
+    void init(double x, double y, double z, double roll, double pitch, double yaw, std::string frame_id, std::string child_frame_id, double period);
 
-    void set(double x, double y, double z, double qx, double qy, double qz, double qw, std::string frame_id, std::string child_frame_id, double period);
+    /** @overload
+     **/
+    void init(double x, double y, double z, double qx, double qy, double qz, double qw, std::string frame_id, std::string child_frame_id, double period);
 
-    void configureCB(dynamic_transform_publisher::TFConfig &config, uint32_t level);
-
-    void update(const ros::TimerEvent &e);
-
+    /** @brief Starts the dynamic_reconfigure server
+     **/
     void start();
+
+    /** @brief Updates the transform/properties of the transform
+     **/
+    void update(dynamic_transform_publisher::TFConfig &config, uint32_t level=0);
+
+    /** @brief Publishes the transform
+     **/
+    void send(const ros::TimerEvent &e = ros::TimerEvent());
 
 private:
     tf2_ros::TransformBroadcaster br;
@@ -30,3 +53,5 @@ private:
     ros::Timer update_timer;
     geometry_msgs::TransformStamped transform;
 };
+
+} // end namespace tf2_ros
