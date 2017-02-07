@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(dynamic_transform_publisher)
 
-find_package(catkin REQUIRED COMPONENTS roscpp tf tf2_ros dynamic_reconfigure)
+find_package(catkin REQUIRED COMPONENTS roscpp tf tf2_ros dynamic_reconfigure interactive_markers visualization_msgs)
 
 include(FindPkgConfig)
 
@@ -12,7 +12,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES dynamic_tf2
-  CATKIN_DEPENDS roscpp tf tf2_ros dynamic_reconfigure
+  CATKIN_DEPENDS roscpp tf tf2_ros dynamic_reconfigure interactive_markers visualization_msgs
 )
 
 include_directories(
@@ -22,7 +22,10 @@ include_directories(
 
 link_directories(${catkin_LIBRARY_DIRS})
 
-add_library(dynamic_tf2 src/dynamic_transform_broadcaster.cpp)
+add_library(dynamic_tf2
+  src/dynamic_transform_broadcaster.cpp
+  src/dynamic_transform_marker.cpp
+)
 target_link_libraries(dynamic_tf2 ${catkin_LIBRARIES})
 add_dependencies(dynamic_tf2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 

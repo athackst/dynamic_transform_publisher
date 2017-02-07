@@ -3,6 +3,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <dynamic_reconfigure/server.h>
 #include <dynamic_transform_publisher/TFConfig.h>
+#include <dynamic_transform_publisher/dynamic_transform_marker.h>
 
 namespace tf2_ros
 {
@@ -49,6 +50,7 @@ protected:
     boost::recursive_mutex config_mutex;
     typedef dynamic_reconfigure::Server<dynamic_transform_publisher::TFConfig> ReconfigureServer;
     boost::shared_ptr<ReconfigureServer> server;
+    boost::shared_ptr<DynamicMarkerControl> marker;
 
     ros::Timer update_timer;
     geometry_msgs::TransformStamped transform;

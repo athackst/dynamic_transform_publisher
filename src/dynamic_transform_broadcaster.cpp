@@ -103,6 +103,10 @@ void DynamicTransformBroadcaster::update(dynamic_transform_publisher::TFConfig &
         ROS_INFO_STREAM("Updating transform for "
                          << "\n frame_id: "<<config.frame_id
                          << "\n child_frame_id: "<<config.child_frame_id );
+        if(!marker)
+        {
+            marker.reset(new DynamicMarkerControl(server, config));
+        }
         update_timer.start();
     }
 }
