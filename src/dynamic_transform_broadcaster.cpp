@@ -50,9 +50,6 @@ void DynamicTransformBroadcaster::init(double x, double y, double z, double qx, 
 void DynamicTransformBroadcaster::update(dynamic_transform_publisher::TFConfig &config, uint32_t level)
 {
     update_timer.stop();
-    transform.transform.translation.x = config.x;
-    transform.transform.translation.y = config.y;
-    transform.transform.translation.z = config.z;
 
     if(config.use_rpy)
     {
@@ -77,13 +74,6 @@ void DynamicTransformBroadcaster::update(dynamic_transform_publisher::TFConfig &
         tf2::Matrix3x3(q).getRPY(config.roll, config.pitch, config.yaw);
     }
 
-    transform.transform.rotation.x = config.qx;
-    transform.transform.rotation.y = config.qy;
-    transform.transform.rotation.z = config.qz;
-    transform.transform.rotation.w = config.qw;
-    transform.header.frame_id = config.frame_id;
-    transform.child_frame_id = config.child_frame_id;
-
     update_timer.setPeriod(ros::Duration(config.period/1000));
 
     if(config.frame_id == "" || config.child_frame_id == "")
@@ -105,17 +95,34 @@ void DynamicTransformBroadcaster::update(dynamic_transform_publisher::TFConfig &
                          << "\n child_frame_id: "<<config.child_frame_id );
         if(!marker)
         {
+            ROS_DEBUG_STREAM("created marker");
             marker.reset(new DynamicMarkerControl(server, config));
         }
         update_timer.start();
     }
 }
 
+geometry_msgs::TransformStamped DynamicTransformBroadcaster::configToTransform(const dynamic_transform_publisher::TFConfig &config)
+{
+    geometry_msgs::TransformStamped transform;
+    transform.transform.translation.x = config.x;
+    transform.transform.translation.y = config.y;
+    transform.transform.translation.z = config.z;
+    transform.transform.rotation.x = config.qx;
+    transform.transform.rotation.y = config.qy;
+    transform.transform.rotation.z = config.qz;
+    transform.transform.rotation.w = config.qw;
+    transform.header.frame_id = config.frame_id;
+    transform.header.stamp = ros::Time::now();
+    transform.child_frame_id = config.child_frame_id;
+
+    return transform;
+}
+
 void DynamicTransformBroadcaster::send(const ros::TimerEvent &e)
 {
     boost::recursive_mutex::scoped_lock lock(config_mutex);
-    transform.header.stamp = ros::Time::now();
-    br.sendTransform(transform);
+    br.sendTransform(configToTransform(marker->config_));
 }
 
 void DynamicTransformBroadcaster::start()

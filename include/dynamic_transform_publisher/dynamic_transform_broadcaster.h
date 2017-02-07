@@ -44,6 +44,8 @@ public:
      **/
     void send(const ros::TimerEvent &e = ros::TimerEvent());
 
+    geometry_msgs::TransformStamped configToTransform(const dynamic_transform_publisher::TFConfig &config);
+
 protected:
     tf2_ros::TransformBroadcaster br;
 
@@ -53,7 +55,6 @@ protected:
     boost::shared_ptr<DynamicMarkerControl> marker;
 
     ros::Timer update_timer;
-    geometry_msgs::TransformStamped transform;
 };
 
 } // end namespace tf2_ros

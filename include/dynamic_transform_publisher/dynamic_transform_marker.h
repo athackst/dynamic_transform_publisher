@@ -14,7 +14,6 @@ private:
     interactive_markers::InteractiveMarkerServer server_;
     visualization_msgs::InteractiveMarker marker_;
 
-    dynamic_transform_publisher::TFConfig config_;
     typedef dynamic_reconfigure::Server<dynamic_transform_publisher::TFConfig> ReconfigureServer;
     boost::shared_ptr<ReconfigureServer> reconfigure_server_;
 
@@ -28,10 +27,10 @@ public:
     virtual ~DynamicMarkerControl()  {}
 
     void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
-
     void addToHistory(tf::Transform pose);
-
     void tfToConfig(const tf::Transform &pose, dynamic_transform_publisher::TFConfig &config);
+
+    dynamic_transform_publisher::TFConfig config_;
 };
 
 #endif // DYNAMIC_MARKER_CONTROL_H_

@@ -2,12 +2,12 @@
 
 DynamicMarkerControl::DynamicMarkerControl(const boost::shared_ptr<ReconfigureServer> &server, const dynamic_transform_publisher::TFConfig &config)
     : server_(ros::this_node::getName())
-    , reconfigure_server_(server){
-
+    , reconfigure_server_(server)
+    , config_(config){
     //visualization_msgs::InteractiveMarker marker;
     marker_.header.frame_id = config.frame_id;
     marker_.name = config.child_frame_id;
-    marker_.description = "Interactive adjustment";
+    marker_.description = config.child_frame_id;
     marker_.pose.position.x = config.x;
     marker_.pose.position.y = config.y;
     marker_.pose.position.z = config.z;
