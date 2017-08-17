@@ -36,25 +36,31 @@ public:
      **/
     void start();
 
-    /** @brief Updates the transform/properties of the transform
+    /** @brief Dynamic reconfigure callback
      **/
-    void update(dynamic_transform_publisher::TFConfig &config, uint32_t level=0);
+    void reconfigure_cb(dynamic_transform_publisher::TFConfig &config, uint32_t level=0);
 
     /** @brief Publishes the transform
      **/
     void send(const ros::TimerEvent &e = ros::TimerEvent());
 
+    /** @brief Update the transform
+     **/
+    void update(const dynamic_transform_publisher::TFConfig &config);
+
     geometry_msgs::TransformStamped configToTransform(const dynamic_transform_publisher::TFConfig &config);
+    geometry_msgs::Pose configToPose(const dynamic_transform_publisher::TFConfig &config);
 
 protected:
-    tf2_ros::TransformBroadcaster br;
+    tf2_ros::TransformBroadcaster br_;
 
-    boost::recursive_mutex config_mutex;
+    boost::recursive_mutex config_mutex_;
     typedef dynamic_reconfigure::Server<dynamic_transform_publisher::TFConfig> ReconfigureServer;
-    boost::shared_ptr<ReconfigureServer> server;
-    boost::shared_ptr<DynamicMarkerControl> marker;
+    boost::shared_ptr<ReconfigureServer> server_;
+    boost::shared_ptr<DynamicMarkerControl> marker_;
+    dynamic_transform_publisher::TFConfig config_;
 
-    ros::Timer update_timer;
+    ros::Timer update_timer_;
 };
 
 } // end namespace tf2_ros

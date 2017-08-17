@@ -1,21 +1,22 @@
 #include <dynamic_transform_publisher/dynamic_transform_marker.h>
 
-DynamicMarkerControl::DynamicMarkerControl(const boost::shared_ptr<ReconfigureServer> &server, const dynamic_transform_publisher::TFConfig &config)
+DynamicMarkerControl::DynamicMarkerControl(const CallbackType &callback, const dynamic_transform_publisher::TFConfig &init_config)
     : server_(ros::this_node::getName())
-    , reconfigure_server_(server)
-    , config_(config){
-    //visualization_msgs::InteractiveMarker marker;
-    marker_.header.frame_id = config.frame_id;
-    marker_.name = config.child_frame_id;
-    marker_.description = config.child_frame_id;
-    marker_.pose.position.x = config.x;
-    marker_.pose.position.y = config.y;
-    marker_.pose.position.z = config.z;
-    marker_.pose.orientation.x = config.qx;
-    marker_.pose.orientation.y = config.qy;
-    marker_.pose.orientation.z = config.qz;
-    marker_.pose.orientation.w = config.qw;
-    marker_.scale = 0.1;
+    , callback_(callback)
+    , config_(init_config){
+
+    ros::NodeHandle nh("~");
+    marker_.header.frame_id = config_.frame_id;
+    marker_.name = config_.child_frame_id;
+    marker_.description = config_.child_frame_id;
+    marker_.pose.position.x = config_.x;
+    marker_.pose.position.y = config_.y;
+    marker_.pose.position.z = config_.z;
+    marker_.pose.orientation.x = config_.qx;
+    marker_.pose.orientation.y = config_.qy;
+    marker_.pose.orientation.z = config_.qz;
+    marker_.pose.orientation.w = config_.qw;
+    marker_.scale = nh.param<double>("marker_scale", 0.1);
 
     visualization_msgs::InteractiveMarkerControl marker_control;
     marker_control.name="rotate_x";
@@ -65,6 +66,12 @@ DynamicMarkerControl::DynamicMarkerControl(const boost::shared_ptr<ReconfigureSe
     server_.applyChanges();
 }
 
+void DynamicMarkerControl::updatePose(const geometry_msgs::Pose &pose)
+{
+    server_.setPose(marker_.name, pose);
+    server_.applyChanges();
+}
+
 void DynamicMarkerControl::processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback)
 {
     if(pose_history_.size() == 0 || feedback->event_type == feedback->MOUSE_DOWN)
@@ -73,16 +80,16 @@ void DynamicMarkerControl::processFeedback(const visualization_msgs::Interactive
         addToHistory(current_pose_);
     }
     //! update dynamic transform
-    tf::poseMsgToTF(feedback->pose, current_pose_);
-    ROS_DEBUG_STREAM("new transform: (" <<current_pose_.getOrigin().x() << ", " << current_pose_.getOrigin().y() << ", " << current_pose_.getOrigin().z() << ") "
+    tf2::fromMsg(feedback->pose, current_pose_);
+    ROS_INFO_STREAM("new transform: (" <<current_pose_.getOrigin().x() << ", " << current_pose_.getOrigin().y() << ", " << current_pose_.getOrigin().z() << ") "
                     << "("<<current_pose_.getRotation().x() << ", " << current_pose_.getRotation().y() << ", " <<current_pose_.getRotation().z() << ", " << current_pose_.getRotation().w() << ")");
 
     tfToConfig(current_pose_, config_);
 
-    reconfigure_server_->updateConfig(config_);
+    callback_(config_);
 }
 
-void DynamicMarkerControl::addToHistory(tf::Transform pose)
+void DynamicMarkerControl::addToHistory(tf2::Transform pose)
 {
     pose_history_.push_back(pose);
 
@@ -92,7 +99,7 @@ void DynamicMarkerControl::addToHistory(tf::Transform pose)
     }
 }
 
-void DynamicMarkerControl::tfToConfig(const tf::Transform &pose, dynamic_transform_publisher::TFConfig &config)
+void DynamicMarkerControl::tfToConfig(const tf2::Transform &pose, dynamic_transform_publisher::TFConfig &config)
 {
     config.x = pose.getOrigin().x();
     config.y = pose.getOrigin().y();
@@ -101,5 +108,9 @@ void DynamicMarkerControl::tfToConfig(const tf::Transform &pose, dynamic_transfo
     config.qy = pose.getRotation().getY();
     config.qz = pose.getRotation().getZ();
     config.qw = pose.getRotation().getW();
+
+    //! update rpy from quaternion
+    tf2::Quaternion q(config.qx, config.qy, config.qz, config.qw);
+    tf2::Matrix3x3(q).getRPY(config.roll, config.pitch, config.yaw);
 }
 
