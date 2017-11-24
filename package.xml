@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>dynamic_transform_publisher</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>Publish a static transform configured through dynamic reconfigure</description>
 
   <maintainer email="allison@lyonthackston.com">Allison Thackston</maintainer>

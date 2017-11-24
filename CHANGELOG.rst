@@ -2,8 +2,8 @@
 Changelog for package dynamic_transform_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2017-11-24)
+------------------
 * removed tf from CMakelists.txt
 * updated package.xml to format 2
 * marker and rqt_reconfigure update sync
